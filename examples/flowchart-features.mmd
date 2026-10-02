@@ -1,0 +1,28 @@
+flowchart LR
+    subgraph Clients[Client applications]
+        direction TB
+        Web([Web app])
+        Mobile([Mobile app])
+    end
+    subgraph Cloud[Application cloud]
+        direction LR
+        API[[Backend API]]
+        Check{Ready?}
+        subgraph Storage[Data services]
+            direction TB
+            Cache[(Redis)]
+            DB[(PostgreSQL)]
+        end
+        API --> Check
+        Check -- Yes --> DB
+        Check -. Retry .-> API
+        API <--> Cache
+    end
+    Web & Mobile -->|HTTPS| API
+    API ==> Audit{{Audit}}
+    Audit --> Audit
+    DB -.-> Report@{ shape: lean-r, label: "Résumé<br>Database" }
+    classDef service fill:#15324f,color:#d6eeff,stroke-width:2px
+    class API service
+    style DB color:#36a169
+    linkStyle 0 stroke:#e6a23c

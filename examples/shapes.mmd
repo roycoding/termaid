@@ -1,0 +1,6 @@
+%% Compact example of the supported shapes, including a database and subroutine.
+flowchart LR
+    Start(Start) --> Ready{Ready?}
+    Ready -->|Yes| Service[[Order service]]
+    Ready -->|No| Stop[Stop]
+    Service --> DB[(Orders DB)]

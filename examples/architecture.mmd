@@ -1,0 +1,15 @@
+%% The rendering paths for flowcharts, state diagrams, and sequence diagrams.
+flowchart TD
+    File[File or standard input] --> CLI[CLI - main.rs]
+    CLI --> Input{Markdown?}
+    Input -->|Yes| Markdown[Extract fences - markdown.rs]
+    Input -->|No| API[Dispatch - lib.rs]
+    Markdown --> API
+    API -->|Flowchart| Parser[Flowchart parser - parser.rs]
+    API -->|State| State[State adapter - state.rs]
+    State --> Parser
+    API -->|Sequence| Sequence[Lifelines - sequence.rs]
+    Parser --> Layout[Group layout - layout.rs]
+    Layout --> Canvas[Routes and drawing - canvas.rs]
+    Canvas --> Output[Unicode or ASCII terminal text]
+    Sequence --> Output

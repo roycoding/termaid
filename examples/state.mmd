@@ -1,0 +1,9 @@
+stateDiagram-v2
+    direction LR
+    [*] --> Idle
+    state "Processing order" as Processing
+    Idle --> Processing: Submit
+    Processing --> Done: Success
+    Processing --> Failed: Error
+    Failed --> Processing: Retry
+    Done --> [*]

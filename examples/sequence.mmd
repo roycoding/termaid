@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant UI as Web frontend
+    participant API as Backend API
+    participant DB as PostgreSQL
+    User->>UI: Checkout
+    UI->>+API: POST /orders
+    API->>+DB: Read inventory
+    DB-->>-API: Inventory rows
+    Note over API,DB: Transaction boundary
+    alt Available
+        API->>DB: Save order
+        API->>API: Publish order event
+        API-->>UI: Order confirmed
+    else Sold out
+        API-->>UI: Out of stock
+    end
+    deactivate API
+    loop Until acknowledged
+        UI->>User: Show result
+    end

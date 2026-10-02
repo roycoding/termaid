@@ -1,0 +1,8 @@
+[package]
+name = "termaid"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Render Mermaid diagrams as terminal text"
+
+[dependencies]

@@ -1,0 +1,28 @@
+%% A typical web application: delivery, API calls, persistence, and async work.
+%% Arrows show request or event flow; responses are omitted to keep it acyclic.
+flowchart TD
+    Browser[Web browser] -->|HTTPS| CDN[CDN and edge cache]
+    CDN --> Frontend[Frontend - React SPA]
+    CDN --> Assets[Static asset storage]
+    Frontend -->|JSON API| Gateway[API gateway]
+    Mobile[Mobile client] --> Gateway
+
+    Gateway --> Backend[Backend API]
+    Backend --> Auth[[Auth service]]
+    Backend --> Catalog[[Catalog service]]
+    Backend --> Orders[[Order service]]
+    Backend -->|Sessions| Cache[(Redis cache)]
+
+    Auth -->|Verify token| Identity[Identity provider]
+    Catalog -->|Search| Search[(Search index)]
+    Catalog -->|Read products| DB[(PostgreSQL database)]
+    Orders -->|Write orders| DB
+
+    Orders --> Payments[[Payment service]]
+    Payments -->|Charge| Provider[Payment provider]
+    Provider --> Approved{Approved?}
+    Approved -->|Yes| Queue[Order paid queue]
+    Approved -->|No| Declined[Payment declined]
+    Queue --> Worker[[Notification worker]]
+    Worker -->|Send receipt| Email[Email provider]
+    Worker --> Audit[(Audit store)]
