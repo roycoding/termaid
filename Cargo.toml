@@ -4,5 +4,20 @@ version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
 description = "Render Mermaid diagrams as terminal text"
+license = "MIT AND Unicode-DFS-2016"
+readme = "README.md"
+keywords = ["mermaid", "terminal", "diagram", "cli", "ascii"]
+categories = ["command-line-utilities", "visualization"]
+include = [
+    "/Cargo.toml",
+    "/Cargo.lock",
+    "/README.md",
+    "/LICENSE",
+    "/LICENSE-UNICODE",
+    "/src/**",
+    "/tests/**",
+    "/examples/**",
+    "/tools/generate_widths.py",
+]
 
 [dependencies]

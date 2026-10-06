@@ -1,0 +1,50 @@
+name: Optional checks
+
+# Manual only: pushes and pull requests do not start these jobs.
+# Fork maintainers can add push/pull_request triggers here if desired.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: ${{ matrix.os }} / Rust ${{ matrix.rust }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rust: stable
+          - os: macos-latest
+            rust: stable
+          - os: ubuntu-latest
+            rust: '1.85.0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        env:
+          TOOLCHAIN: ${{ matrix.rust }}
+        run: |
+          rustup toolchain install "$TOOLCHAIN" --profile minimal --component rustfmt --component clippy
+          rustup override set "$TOOLCHAIN"
+      - name: Check formatting
+        if: matrix.rust == 'stable'
+        run: cargo fmt --check
+      - name: Lint
+        if: matrix.rust == 'stable'
+        run: cargo clippy --locked --offline --all-targets -- -D warnings
+      - name: Test
+        run: cargo test --locked --offline
+      - name: Build release executable
+        run: cargo build --release --locked --offline
+      - name: Check README examples
+        run: ./target/release/termaid README.md > /dev/null
+      - name: Verify source package
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
+        run: cargo package --locked --offline

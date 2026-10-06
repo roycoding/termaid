@@ -4,7 +4,22 @@ Render Mermaid diagrams directly in a terminal as selectable text. Supports
 flowcharts, sequence diagrams, basic state diagrams, and Mermaid blocks in
 Markdown. Written in Rust with no external dependencies, browser, or image protocol.
 
-With `termaid` installed:
+This is an early release supporting a [subset of Mermaid](#remaining-limits).
+It produces plain text approximations rather than reproducing browser rendering.
+
+With `termaid` installed, try this from any directory:
+
+```sh
+printf 'flowchart LR; A[Read file] --> B[Parse Mermaid] --> C[Draw diagram]\n' | termaid
+```
+
+```text
+┌───────────┐       ┌───────────────┐       ┌───────────────┐
+│ Read file │──────▶│ Parse Mermaid │──────▶│ Draw diagram  │
+└───────────┘       └───────────────┘       └───────────────┘
+```
+
+From a source checkout, explore the bundled examples:
 
 ```sh
 termaid examples/web-app.mmd
@@ -16,10 +31,11 @@ termaid examples/diagrams.md
 
 ## Build and install
 
-Requires Rust 1.85 or newer. From the project directory:
+Requires Rust 1.85 or newer with Cargo. Clone this repository or download and
+extract its source archive, then run from the resulting project directory:
 
 ```sh
-cargo install --path . --offline
+cargo install --path . --locked --offline
 ```
 
 This builds an optimized binary and installs it in Cargo's bin directory, normally
@@ -29,15 +45,21 @@ This builds an optimized binary and installs it in Cargo's bin directory, normal
 termaid --version
 ```
 
+Installation builds from this checkout; it does not require a crates.io package.
+The examples stay in the source directory and are not installed beside the binary.
+To uninstall, run `cargo uninstall termaid`.
+
 To build without installing:
 
 ```sh
-cargo build --release --offline
+cargo build --release --locked --offline
 ./target/release/termaid examples/web-app.mmd
 ```
 
 The code uses portable Rust APIs and is intended for Linux and macOS. It has been
-built and tested on Linux; macOS still needs a native test run.
+built and tested locally on Linux. An optional, manually triggered GitHub Actions
+workflow is available for stable Rust on Linux and macOS and Rust 1.85 on Linux.
+macOS and minimum-version compatibility have not yet been verified.
 
 ## Usage
 
@@ -255,6 +277,10 @@ For Python maintenance tasks, use `uv`, for example:
 uv run python tools/generate_widths.py
 ```
 
+Regenerating with a different Python version can change the Unicode database.
+Review the generated version and update the Unicode notice if its data version
+changes. Check in the resulting tables so normal builds remain self-contained.
+
 ```sh
 cargo test --offline
 cargo fmt --check
@@ -264,3 +290,34 @@ cargo clippy --offline --all-targets -- -D warnings
 Tests cover snapshots, shape geometry, all directions, groups, cycles, shorthand,
 Unicode labels, styles, Markdown extraction, sequence/state diagrams, malformed
 input, resource limits, and CLI behavior.
+
+### Optional GitHub Actions checks
+
+[.github/workflows/ci.yml](.github/workflows/ci.yml) runs only when explicitly
+requested; pushes and pull requests do not trigger it. Once the workflow is on
+the repository's default branch, maintainers can select **Actions → Optional
+checks → Run workflow**. See GitHub's
+[manual workflow instructions](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow).
+
+Fork owners can enable Actions in their own repository and run the same checks
+there. To opt into automatic CI, add `push:` and/or `pull_request:` beneath `on:`
+in that workflow. The local Cargo commands above work independently of Actions.
+
+## Contributing
+
+Bug reports and small, focused pull requests are welcome. For a rendering or
+parsing issue, include the smallest Mermaid input that reproduces it, the output
+you expected, `termaid --version`, your operating system, and terminal emulator.
+Mention whether you used `--ascii` or `--color`.
+
+For code changes, run the checks above and add a regression example or test when
+behavior changes. Keep unsupported syntax explicit instead of silently dropping
+content. Please discuss new diagram families or large layout changes in an issue
+before implementing them.
+
+## License
+
+The termaid code is available under the [MIT License](LICENSE).
+Generated Unicode character-property data carries its own
+[Unicode notice](LICENSE-UNICODE). Include both notices with redistributed source
+or binary archives. The Cargo license expression records both components.
